@@ -22,8 +22,8 @@ class Example(wx.Frame):
         p = wx.Panel(self)
        
         bs = wx.BoxSizer(wx.VERTICAL)
-        self.t1 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER 
-)
+        self.t1 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER) 
+
         bs.Add(self.t1, 1, wx.EXPAND)
           
         bs.Add(grid_1, 1, wx.EXPAND)
@@ -39,6 +39,10 @@ class Example(wx.Frame):
             for j in range(0,18):
                 cell=rows[i]
                 self.grid_1.SetCellValue(i,j,str(cell[j]))
+        btn = wx.Button(p, -1, SYMBOL, (10,20))                                   #buttons are added
+        btn.myname = SYMBOL
+        btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
+        gs.Add(btn, 0, wx.EXPAND)        
         conn.close()
         event.Skip()
   
