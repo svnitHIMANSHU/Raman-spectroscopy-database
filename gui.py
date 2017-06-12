@@ -42,7 +42,7 @@ class Example(wx.Frame):
         btn = wx.Button(p, -1, SYMBOL, (10,20))                                   #buttons are added
         btn.myname = SYMBOL
         btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
-        gs.Add(btn, 0, wx.EXPAND)        
+        grid_1.Add(btn, 0, wx.EXPAND)        
         conn.close()
         event.Skip()
   
