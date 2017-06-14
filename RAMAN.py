@@ -43,7 +43,9 @@ class Example(wx.Frame):
                    print elements[0]
                    btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                         
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
-                   gs.Add(btn, -1, wx.EXPAND)   
+                   gs.Add(btn, -1, wx.EXPAND)
+	self.btn=wx.Button(p,-1,"Search!")
+        bs.Add(self.btn,0,wx.ALIGN_CENTER)		
         p.SetSizer(bs)
 
         #self.conn.close()
