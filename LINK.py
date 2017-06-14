@@ -26,7 +26,7 @@ c.execute("INSERT INTO LINK VALUES (9, 13, '5')");
 
 c.execute("INSERT INTO LINK VALUES (10, 8, '5')");
 
-#c.xecute("SELECT * FROM LINK")
+#c.execute("SELECT * FROM LINK")
 
 #rows= c.fetchall()
 
