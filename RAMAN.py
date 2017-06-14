@@ -41,14 +41,14 @@ class Example(wx.Frame):
                    gs.Add(wx.StaticText(p,-1,''))
                 else:
                    print elements[0]
-                   btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                              #buttons are added
+                   btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                         
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)   
         p.SetSizer(bs)
 
         #self.conn.close()
          
-    def OnClick(self, event):                                       #When the button is clicked
+    def OnClick(self, event):                                     
         name = event.GetEventObject().GetLabelText()
         cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL=='%s'"%(name))
         elements = cursor.fetchall()
@@ -56,7 +56,6 @@ class Example(wx.Frame):
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
    
-
 app = wx.App()
 Example(None, title = 'Raman Database')
 app.MainLoop()
