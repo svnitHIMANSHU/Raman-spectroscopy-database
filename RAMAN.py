@@ -20,6 +20,8 @@ class Example(wx.Frame):
         bs = wx.BoxSizer(wx.VERTICAL)
         self.t1 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.t1, 1, wx.EXPAND)
+	self.t2 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        bs.Add(self.t2, 1, wx.EXPAND)
            
         gs = wx.GridSizer(10, 18, 5, 5)
         bs.Add(gs, 1, wx.EXPAND)
