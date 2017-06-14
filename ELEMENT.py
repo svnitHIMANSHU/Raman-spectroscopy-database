@@ -241,5 +241,12 @@
 	c.execute("INSERT INTO ELEMENT VALUES (103, 'Lr', 10, '18')");
 		                                
 	conn.commit()
+	
+	#c.execute("SELECT * FROM LINK")
+
+        #rows = c.fetchall()
+
+        #for row in rows:
+            #print row
 
 	conn.close()
