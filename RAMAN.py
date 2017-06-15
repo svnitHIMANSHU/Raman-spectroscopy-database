@@ -59,7 +59,7 @@ class Example(wx.Frame):
         cursor= self.conn.execute("SELECT ATOMIC NUMBER FROM ELEMENT where SYMBOL=='%s'"%(name))
         numbers = cursor.fetchall()
         print numbers
-        cursor= self.conn.execute("SELECT MOL_NUMBER FROM LINK where ATOMIC NUMBER=='%d'"%(numbers))
+        cursor= self.conn.execute('SELECT MOL_NUMBER FROM LINK where ATOMIC NUMBER=?', (numbers))
         Mnumbers = cursor.fetchall()
         print Mnumbers
         #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER=='%d'"%(Mnumbers))
@@ -73,5 +73,6 @@ class Example(wx.Frame):
 app = wx.App()
 Example(None, title = 'Raman Database')
 app.MainLoop()
+	
 	            
 	
