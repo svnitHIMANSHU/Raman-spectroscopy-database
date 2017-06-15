@@ -4,7 +4,7 @@ conn = sqlite3.connect('RAMAN.db')
 
 c = conn.cursor()
 
-c.execute("CREATE table MOLECULE (COMPUND NUMBER INT, COMPOUND NAME TEXT, \"COMPOUND FORMULA\" TEXT)");
+c.execute("CREATE table MOLECULE (MOL_NUMBER INT, MOL_NAME TEXT, \"MOL_FORMULA\" TEXT)");
 
 c.execute("INSERT INTO MOLECULE VALUES (1, 'WATER', 'H20')");
 
