@@ -56,15 +56,16 @@ class Example(wx.Frame):
         cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL=='%s'"%(name))
         elements = cursor.fetchall()
         print elements
-        cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL=='%s'"%(name))
+        cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL IN ('%s')"%(name))
         numbers = cursor.fetchall()
         print numbers
-        cursor= self.conn.execute('SELECT MOL_NUMBER FROM LINK where ATOMIC_NUMBER=?', (numbers))
-        Mnumbers = cursor.fetchall()
-        print Mnumbers
+        cursor= self.conn.execute("SELECT ELEMENT_NUMBER,MOL_NUMBER FROM LINK where ELEMENT_NUMBER IN (SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL IN  ('%s')%(SYMBOL))")
+        mnumbers = cursor.fetchall()
+        print mnumbers
         #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER=='%d'"%(Mnumbers))
         #molecules = cursor.fetchall()
         #print molecules
+        #SELECT USER_ID,EMAIL_ID FROM USERS where user_id IN (SELECT PRODUCT_MEMBERS FROM PRODUCT WHERE PRODUCT_NAME='ICP/RAA');
         
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
