@@ -4,7 +4,7 @@
 
 	c = conn.cursor()
 	
-	c.execute("CREATE table ELEMENT(ATOMIC NUMBER INT, SYMBOL TEXT, ROW_NO INT, COLUMN_NO INT)");
+	c.execute("CREATE table ELEMENT(ATOMIC_NUMBER INT, SYMBOL TEXT, ROW_NO INT, COLUMN_NO INT)");
 
 	c.execute("INSERT INTO ELEMENT VALUES (1, 'H', 1, '1')"); 
 
