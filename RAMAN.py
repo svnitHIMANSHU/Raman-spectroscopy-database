@@ -5,7 +5,7 @@ import os
 class Example(wx.Frame):
  
     def __init__(self, parent, title):
-        super(Example, self).__init__(parent, title=title, size=(800,600))
+        super(Example, self).__init__(parent, title=title, size=(1000,800))
 
  
         self.InitUI()
@@ -18,11 +18,11 @@ class Example(wx.Frame):
         p = wx.Panel(self)
        
         bs = wx.BoxSizer(wx.VERTICAL)
-        self.t1 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        self.t1 = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.t1, 1, wx.EXPAND)
-	self.t2 = wx.TextCtrl(p,size = (120,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        self.t2 = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.t2, 1, wx.EXPAND)
-           
+        
         gs = wx.GridSizer(10, 18, 5, 5)
         bs.Add(gs, 1, wx.EXPAND)
 
@@ -41,23 +41,36 @@ class Example(wx.Frame):
                    gs.Add(wx.StaticText(p,-1,''))
                 else:
                    print elements[0]
-                   btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                         
+                   btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                              
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)
-	self.btn=wx.Button(p,-1,"Search!")
-        bs.Add(self.btn,0,wx.ALIGN_CENTER)		
+                   
+        self.btn=wx.Button(p,-1,"Search!")
+        bs.Add(self.btn,0,wx.ALIGN_CENTER)
+      
         p.SetSizer(bs)
-
         #self.conn.close()
          
-    def OnClick(self, event):                                     
+    def OnClick(self, event):                                       
         name = event.GetEventObject().GetLabelText()
         cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL=='%s'"%(name))
         elements = cursor.fetchall()
         print elements
+        cursor= self.conn.execute("SELECT ATOMIC NUMBER FROM ELEMENT where SYMBOL=='%s'"%(name))
+        numbers = cursor.fetchall()
+        print numbers
+        t = ('numbers')
+        cursor= self.conn.execute('SELECT MOL_NUMBER FROM LINK where ATOMIC NUMBER=?', t)
+        #Mnumbers = cursor.fetchall()
+        print fetchone()
+        #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER=='%d'"%(Mnumbers))
+        #molecules = cursor.fetchall()
+        #print molecules
+        
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
    
+
 app = wx.App()
 Example(None, title = 'Raman Database')
 app.MainLoop()
