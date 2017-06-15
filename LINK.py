@@ -4,7 +4,7 @@ conn = sqlite3.connect('RAMAN.db')
 
 c = conn.cursor()
 
-c.execute("CREATE table LINK(ID INT, ATOMIC NUMBER INT, MOL_NUMBER INT )");
+c.execute("CREATE table LINK(ID INT, ATOMIC_NUMBER INT, MOL_NUMBER INT )");
 
 c.execute("INSERT INTO LINK VALUES (1, 1, '1')");
 
