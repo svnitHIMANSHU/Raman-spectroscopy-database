@@ -66,7 +66,6 @@ class Example(wx.Frame):
         #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER=='%d'"%(Mnumbers))
         #molecules = cursor.fetchall()
         #print molecules
-        #SELECT USER_ID,EMAIL_ID FROM USERS where user_id IN (SELECT PRODUCT_MEMBERS FROM PRODUCT WHERE PRODUCT_NAME='ICP/RAA');
         
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
