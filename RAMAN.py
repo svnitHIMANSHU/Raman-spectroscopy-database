@@ -53,19 +53,28 @@ class Example(wx.Frame):
          
     def OnClick(self, event):                                       
         name = event.GetEventObject().GetLabelText()
-        cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL=='%s'"%(name))
+        cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL==?", [name])
         elements = cursor.fetchall()
         print elements
-        cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL IN ('%s')"%(name))
+        cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL = ?", [name])
         numbers = cursor.fetchall()
         print numbers
-        cursor= self.conn.execute("SELECT * FROM LINK where ELEMENT_NUMBER = 'numbers'")
+        atomicnumber = numbers[0][0]
+        cursor= self.conn.execute("SELECT MOL_NUMBER FROM LINK where ELEMENT_NUMBER = ?", [atomicnumber])
         mnumbers = cursor.fetchall()
-        print mnumbers
-        #cursor= self.conn.execute("SELECT * FROM LINK where ELEMENT_NUMBER IN (SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL IN  ('%s')%(SYMBOL))")
-        #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER=='%d'"%(Mnumbers))
+        print mnumbers  
+        
+                
+   # def intersect(*mnumbers):
+        #sets = iter(map(set, mnumbers))
+        #result = sets.next()
+        #for s in sets:
+             #result = result.intersection(s)
+        #return result  
+        #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER = ?", [moleculenumber])
         #molecules = cursor.fetchall()
         #print molecules
+        
         
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
@@ -74,6 +83,3 @@ class Example(wx.Frame):
 app = wx.App()
 Example(None, title = 'Raman Database')
 app.MainLoop()
-	
-	            
-	
