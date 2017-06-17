@@ -4,7 +4,7 @@ conn = sqlite3.connect('RAMAN.db')
 
 c = conn.cursor()
 
-c.execute("CREATE table LINK(ID INT, ELEMENT_NUMBER INT, MOL_NUMBER INT )");
+c.execute("CREATE table LINK(ID INT, ELEMENT_NUMBER INT,  MOL_NUMBER INT)");
 
 c.execute("INSERT INTO LINK VALUES (1, 1, '1')");
 
@@ -26,12 +26,16 @@ c.execute("INSERT INTO LINK VALUES (9, 13, '5')");
 
 c.execute("INSERT INTO LINK VALUES (10, 8, '5')");
 
-#c.execute("SELECT * FROM LINK")
+c.execute("INSERT INTO LINK VALUES (11, 1, '6')");
 
-#rows= c.fetchall()
+c.execute("INSERT INTO LINK VALUES (12, '8', '6')");
 
-#for row in rows:
-   #print row
+c.execute("SELECT * FROM LINK")
+
+rows = c.fetchall()
+
+for row in rows:
+    print row
 
 conn.commit()
 
