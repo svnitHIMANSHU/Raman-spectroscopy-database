@@ -48,33 +48,25 @@ class Example(wx.Frame):
         
 
     def OnClick(self, event):
-        name = event.GetEventObject().GetLabelText()
-        cursor=self.conn.execute("SELECT * FROM ELEMENT WHERE SYMBOL = ?", [name])
+        name = "O"
+        cursor=self.conn.execute("SELECT * FROM ELEMENT WHERE SYMBOL = ?", (name,))
         elements = cursor.fetchall()
-        cursor=self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL = ?", [name])
+        cursor=self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL = ?", (name,))
         numbers = cursor.fetchall()
         print numbers
-        atomicnumber = numbers[0][0]
-        cursor=self.conn.execute("SELECT MOL_NUMBER FROM LINK where ELEMENT_NUMBER = ?", [atomicnumber])
-        mnumber = cursor.fetchall()
-        print mnumber
-        combinations = mnumber[0][0]
-    def combinations_intersection(combinations):
-        if not combinations:
-           return set()
-        result = combinations[0]
-        for s in combinations[1:]:
-            result &=s
-        return result
-        print result
-        #cursor=self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER = ?", [combinations])
-        #compounds = cursor.fetchall()
-        #print compounds
+        atomicnumber = numbers
+        print atomicnumber
+        cursor=self.conn.execute("SELECT MOL_NUMBER FROM LINK where ELEMENT_NUMBER = ?", (atomicnumber,))
+        mnumbers = cursor.fetchall()[0]
+        mnum_list=[]
+        for i in mnumbers:
+            mnum_list.append(i[0])
+        print mnum_list
+        combinations = atomicnumber
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n")
         #self.conn.close()
 
 
 app = wx.App()
-Example(None, title = 'Raman Spectroscopy Database')
-app.MainLoop()
+Example(None,()
