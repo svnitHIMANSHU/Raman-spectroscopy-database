@@ -30,6 +30,18 @@ c.execute("INSERT INTO LINK VALUES (11, 1, '6')");
 
 c.execute("INSERT INTO LINK VALUES (12, '8', '6')");
 
+c.execute("INSERT INTO LINK VALUES (13, '1', '7')");
+
+c.execute("INSERT INTO LINK VALUES (13, 8, '7')");
+
+c.execute("INSERT INTO LINK VALUES (13, 6, '7')");
+
+c.execute("INSERT INTO LINK VALUES (14, 1, '8')");
+
+c.execute("INSERT INTO LINK VALUES (15, 8, '8')");
+
+c.execute("INSERT INTO LINK VALUES (15, '6', '8')");
+
 c.execute("SELECT * FROM LINK")
 
 rows = c.fetchall()
@@ -38,5 +50,7 @@ for row in rows:
     print row
 
 conn.commit()
+
+conn.close()
 
 conn.close()
