@@ -6,6 +6,7 @@ class Example(wx.Frame):
  
     def __init__(self, parent, title):
         super(Example, self).__init__(parent, title=title, size=(1000,800))
+        self.inter_list = list() 
 
  
         self.InitUI()
@@ -20,15 +21,13 @@ class Example(wx.Frame):
         bs = wx.BoxSizer(wx.VERTICAL)
         self.t1 = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.t1, 1, wx.EXPAND)
-        self.t2 = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        self.t2 = wx.ListCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.t2, 1, wx.EXPAND)
         
         gs = wx.GridSizer(10, 18, 5, 5)
         bs.Add(gs, 1, wx.EXPAND)
 
         self.conn = sqlite3.connect('RAMAN.db')
-        #self.cursor = self.conn.execute("SELECT * FROM ELEMENT")
-        #self.elements = self.cursor.fetchall()
         for row_id in range(1,11):
            for col_id in range(1,19):
              print row_id,col_id
@@ -45,8 +44,9 @@ class Example(wx.Frame):
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)
                    
-        self.btn=wx.Button(p,-1,"Search!")
-        bs.Add(self.btn,0,wx.ALIGN_CENTER)
+        self.search_btn=wx.Button(p,-1,"Search!")
+        self.search_btn.Bind(wx.EVT_BUTTON, self.OnSearch, self.search_btn)
+        bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
       
         p.SetSizer(bs)
         
@@ -58,27 +58,29 @@ class Example(wx.Frame):
         print elements
         cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL = ?", (name,))
         numbers = cursor.fetchone()[0]
-        print numbers
         atomicnumber = numbers
         cursor= self.conn.execute("SELECT MOL_NUMBER FROM LINK where ELEMENT_NUMBER = ?", (atomicnumber,))
         mnumbers = cursor.fetchall()
-        print mnumbers         
+        print mnumbers
         mnum_list = []
         for i in mnumbers:
              mnum_list.append(i[0])
         print mnum_list
-        combinations = atomicnumber
-        inter_list = []
-        inter_list.append(mnum_list)
-        print inter_list
-        #print list(set.intersection(*map(set,inter_list))) 
-        #cursor= self.conn.execute("SELECT * FROM MOLECULE where MOL_NUMBER = ?", (combinations,))
-        #compounds = cursor.fetchall()
-        #print compound
+        self.inter_list.append(mnum_list)
+        print self.inter_list
+        self.molecule_list=list(set.intersection(*map(set,self.inter_list)))
+        print self.molecule_list
         self.t1.AppendText(str(elements[0][0]))
         self.t1.AppendText("\n") 
-        #self.conn.close()
+        
+         
+    def OnSearch(self, event):                                  
+        print self.molecule_list
+        #self.t2.ClearAll()
+        #self.t2.Append(self.molecule_list)
+
+
 
 app = wx.App()
-Example(None, title = 'Raman Database')
-app.MainLoop()
+Example(None, title = 'Raman SPectroscopy Database')
+app.MainLoop()	
