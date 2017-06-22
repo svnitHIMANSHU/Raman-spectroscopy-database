@@ -19,10 +19,13 @@ class Example(wx.Frame):
         p = wx.Panel(self)
        
         bs = wx.BoxSizer(wx.VERTICAL)
-        self.t1 = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
-        bs.Add(self.t1, 1, wx.EXPAND)
-        self.t2 = wx.ListCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
-        bs.Add(self.t2, 1, wx.EXPAND)
+        self.text = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        bs.Add(self.text, 1, wx.EXPAND)
+        self.list = wx.ListCtrl(p,size = (50,30),style = wx.LC_REPORT)
+        self.list.InsertColumn(0, 'MOLECULE NUMBER', width = 150) 
+        self.list.InsertColumn(1, 'MOLECULE NAME', wx.LIST_FORMAT_RIGHT, 200) 
+        self.list.InsertColumn(2, 'MOLECULE SYMBOL', wx.LIST_FORMAT_RIGHT, 200)
+        bs.Add(self.list, 1, wx.EXPAND)
         
         gs = wx.GridSizer(10, 18, 5, 5)
         bs.Add(gs, 1, wx.EXPAND)
@@ -47,7 +50,14 @@ class Example(wx.Frame):
         self.search_btn=wx.Button(p,-1,"Search!")
         self.search_btn.Bind(wx.EVT_BUTTON, self.OnSearch, self.search_btn)
         bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
-      
+        
+        self.plot_btn=wx.Button(p,-1,"Plot!")
+        self.plot_btn.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
+        bs.Add(self.plot_btn,0,wx.ALIGN_CENTER)
+        
+        self.reset_btn=wx.Button(p,-1,"Reset!")
+        self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
+        bs.Add(self.reset_btn,0,wx.ALIGN_LEFT)
         p.SetSizer(bs)
         
          
@@ -70,17 +80,28 @@ class Example(wx.Frame):
         print self.inter_list
         self.molecule_list=list(set.intersection(*map(set,self.inter_list)))
         print self.molecule_list
-        self.t1.AppendText(str(elements[0][0]))
-        self.t1.AppendText("\n") 
+        self.text.AppendText(str(elements[0][1]))
+        self.text.AppendText("\n")
+               
+    def OnSearch(self, event):        
+        placeholder = '?'
+        placeholders = ','.join(placeholder for unused in self.molecule_list)
+        query = 'SELECT * FROM MOLECULE WHERE MOL_NUMBER IN (%s)' % placeholders
+        cursor = self.conn.execute(query, self.molecule_list)
+        final = cursor.fetchall()
+        print final         
+        for j in final: 
+            self.list.Append((j[0],j[1],j[2]))                            
+
+    def OnReset(self, event):                                    
+        self.list.ClearAll()
+        self.text.Clear()
         
-         
-    def OnSearch(self, event):                                  
-        print self.molecule_list
-        #self.t2.ClearAll()
-        #self.t2.Append(self.molecule_list)
-
-
+    def OnPlot(self, event):                                       
+        btn=event.GetEventObject().GetLabel()
+        print "my plot=",btn
+    
 
 app = wx.App()
-Example(None, title = 'Raman SPectroscopy Database')
+Example(None, title = 'Raman Spectroscopy Database')
 app.MainLoop()	
