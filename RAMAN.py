@@ -25,6 +25,7 @@ class Example(wx.Frame):
         self.list.InsertColumn(0, 'MOLECULE NUMBER', width = 150) 
         self.list.InsertColumn(1, 'MOLECULE NAME', wx.LIST_FORMAT_RIGHT, 200) 
         self.list.InsertColumn(2, 'MOLECULE SYMBOL', wx.LIST_FORMAT_RIGHT, 200)
+        self.list.InsertColumn(3, 'FILE NAME', wx.LIST_FORMAT_RIGHT, 250)
         bs.Add(self.list, 1, wx.EXPAND)
         
         gs = wx.GridSizer(10, 18, 5, 5)
@@ -52,7 +53,7 @@ class Example(wx.Frame):
         bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
         
         self.plot_btn=wx.Button(p,-1,"Plot!")
-        self.plot_btn.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnPlot, self.list)
         bs.Add(self.plot_btn,0,wx.ALIGN_CENTER)
         
         self.reset_btn=wx.Button(p,-1,"Reset!")
@@ -91,15 +92,21 @@ class Example(wx.Frame):
         final = cursor.fetchall()
         print final         
         for j in final: 
-            self.list.Append((j[0],j[1],j[2]))                            
+            self.list.Append((j[0],j[1],j[2],j[3]))                            
 
-    def OnReset(self, event):                                    
-        self.list.ClearAll()
+    def OnReset(self, event):                                   
+        self.list.DeleteAllItems()
+        self.molecule_list = []
+        self.inter_list = []
         self.text.Clear()
         
-    def OnPlot(self, event):                                       
-        btn=event.GetEventObject().GetLabel()
-        print "my plot=",btn
+    def OnPlot(self, event):
+        click =  event.GetText()
+        #cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (click,))
+        #files = cursor.fetchall()
+        #print files                                      
+        
+        
     
 
 app = wx.App()
