@@ -1,12 +1,14 @@
 import wx
 import sqlite3
+import matplotlib.pyplot as plt 
 import os 
 
 class Example(wx.Frame):
  
     def __init__(self, parent, title):
         super(Example, self).__init__(parent, title=title, size=(1000,800))
-        self.inter_list = list() 
+        self.inter_list = list()
+        self.plot_list = list() 
 
  
         self.InitUI()
@@ -53,12 +55,19 @@ class Example(wx.Frame):
         bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
         
         self.plot_btn=wx.Button(p,-1,"Plot!")
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnPlot, self.list)
+        self.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
         bs.Add(self.plot_btn,0,wx.ALIGN_CENTER)
         
         self.reset_btn=wx.Button(p,-1,"Reset!")
         self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
         bs.Add(self.reset_btn,0,wx.ALIGN_LEFT)
+        
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.get_selected_item, self.list)
+        
+        self.add_new_btn=wx.Button(p,-1,"Add New!")
+        self.Bind(wx.EVT_BUTTON, self.OnAddNew, self.add_new_btn)
+        bs.Add(self.add_new_btn,0,wx.ALIGN_RIGHT)
+        
         p.SetSizer(bs)
         
          
@@ -100,15 +109,30 @@ class Example(wx.Frame):
         self.inter_list = []
         self.text.Clear()
         
+    def get_selected_item(self, event):  
+        self.plot_list.append(event.GetText())
+        
     def OnPlot(self, event):
-        click =  event.GetText()
-        #cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (click,))
-        #files = cursor.fetchall()
-        #print files                                      
+        cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (self.plot_list[0]))
+        files = cursor.fetchall()
+        print files[0][0]  
+        plt.plotfile(str(files[0][0]), delimiter=' ', cols=(0, 1), 
+                     names=('Raman Shift (cm^-1)','Intensity (arbitrary units)'), )                                            
+        plt.show()
         
-        
-    
-
+    def OnAddNew(self, event):
+        dlg = GetData(parent = self.panel) 
+        dlg.ShowModal()
+        if dlg.result_name:
+            self.log.AppendText("Name: "+dlg.result_name+"\n")
+	    self.log.AppendText("Surname: "+dlg.result_surname+"\n")
+	    self.log.AppendText("Nickname: "+dlg.result_nickname+"\n")
+        else:
+            self.log.AppendText("No Input found\n")
+            dlg.Destroy()
+		      
+	    
+	    
 app = wx.App()
 Example(None, title = 'Raman Spectroscopy Database')
-app.MainLoop()	
+app.MainLoop()
