@@ -1,6 +1,8 @@
 import wx
 import sqlite3
-import matplotlib.pyplot as plt 
+import itertools
+import matplotlib.pyplot as plt
+import re 
 import os 
 
 class Example(wx.Frame):
@@ -36,7 +38,7 @@ class Example(wx.Frame):
         self.conn = sqlite3.connect('RAMAN.db')
         for row_id in range(1,11):
            for col_id in range(1,19):
-             print row_id,col_id
+             #print row_id,col_id
              cursor= self.conn.execute("SELECT * FROM ELEMENT where ROW_NO==%d AND COLUMN_NO==%d"%(row_id,col_id))
              if(cursor==None):
                 gs.Add(wx.StaticText(p,-1,''))
@@ -45,7 +47,7 @@ class Example(wx.Frame):
                 if(elements==None or len(elements)==0):
                    gs.Add(wx.StaticText(p,-1,''))
                 else:
-                   print elements[0]
+                   #print elements[0]
                    btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                              
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)
@@ -62,11 +64,12 @@ class Example(wx.Frame):
         self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
         bs.Add(self.reset_btn,0,wx.ALIGN_LEFT)
         
+        #self.addnew_btn=wx.Button(p,-1,"Add New!")
+        #self.addnew_btn.Bind(wx.EVT_BUTTON, self.OnAddNew, self.addnew_btn)
+        #bs.Add(self.addnew_btn,0,wx.ALIGN_LEFT)
+        
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.get_selected_item, self.list)
         
-        self.add_new_btn=wx.Button(p,-1,"Add New!")
-        self.Bind(wx.EVT_BUTTON, self.OnAddNew, self.add_new_btn)
-        bs.Add(self.add_new_btn,0,wx.ALIGN_RIGHT)
         
         p.SetSizer(bs)
         
@@ -75,21 +78,21 @@ class Example(wx.Frame):
         name = event.GetEventObject().GetLabelText()
         cursor= self.conn.execute("SELECT * FROM ELEMENT where SYMBOL==?", (name,))
         elements = cursor.fetchall()
-        print elements
+        #print elements
         cursor= self.conn.execute("SELECT ATOMIC_NUMBER FROM ELEMENT where SYMBOL = ?", (name,))
         numbers = cursor.fetchone()[0]
         atomicnumber = numbers
         cursor= self.conn.execute("SELECT MOL_NUMBER FROM LINK where ELEMENT_NUMBER = ?", (atomicnumber,))
         mnumbers = cursor.fetchall()
-        print mnumbers
+        #print mnumbers
         mnum_list = []
         for i in mnumbers:
              mnum_list.append(i[0])
-        print mnum_list
+        #print mnum_list
         self.inter_list.append(mnum_list)
-        print self.inter_list
+        #print self.inter_list
         self.molecule_list=list(set.intersection(*map(set,self.inter_list)))
-        print self.molecule_list
+        #print self.molecule_list
         self.text.AppendText(str(elements[0][1]))
         self.text.AppendText("\n")
                
@@ -99,7 +102,7 @@ class Example(wx.Frame):
         query = 'SELECT * FROM MOLECULE WHERE MOL_NUMBER IN (%s)' % placeholders
         cursor = self.conn.execute(query, self.molecule_list)
         final = cursor.fetchall()
-        print final         
+        #print final         
         for j in final: 
             self.list.Append((j[0],j[1],j[2],j[3]))                            
 
@@ -115,24 +118,27 @@ class Example(wx.Frame):
     def OnPlot(self, event):
         cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (self.plot_list[0]))
         files = cursor.fetchall()
-        print files[0][0]  
-        plt.plotfile(str(files[0][0]), delimiter=' ', cols=(0, 1), 
-                     names=('Raman Shift (cm^-1)','Intensity (arbitrary units)'), )                                            
+        #print files[0][0]
+        tf = open(files[0][0],'r+')
+	d = tf.readlines()
+	tf.seek(0)
+	for line in d:
+    	     s=re.search(r'[a-zA-Z]',line)
+             if s:
+       	         tf.write('#'+line)
+    	     else:
+                 tf.write(line)
+        tf.truncate()
+        tf.close()
+        plt.plotfile(str(files[0][0]), delimiter=' ',comments = '#', cols=(0, 1), 
+                   names=('Raman Shift(cm-1)', 'Intensity(Arbitrary Units)'), ) 
         plt.show()
         
-    def OnAddNew(self, event):
-        dlg = GetData(parent = self.panel) 
-        dlg.ShowModal()
-        if dlg.result_name:
-            self.log.AppendText("Name: "+dlg.result_name+"\n")
-	    self.log.AppendText("Surname: "+dlg.result_surname+"\n")
-	    self.log.AppendText("Nickname: "+dlg.result_nickname+"\n")
-        else:
-            self.log.AppendText("No Input found\n")
-            dlg.Destroy()
-		      
-	    
-	    
+    #def OnAddNew(self, event):
+             
+        
+ 
+		
 app = wx.App()
 Example(None, title = 'Raman Spectroscopy Database')
-app.MainLoop()
+app.MainLoop()		
