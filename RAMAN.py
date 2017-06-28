@@ -134,8 +134,7 @@ class Example(wx.Frame):
                    names=('Raman Shift(cm-1)', 'Intensity(Arbitrary Units)'), ) 
         plt.show()
         
-    #def OnAddNew(self, event):
-             
+    #def OnAddNew(self, event):         
         
  
 		
