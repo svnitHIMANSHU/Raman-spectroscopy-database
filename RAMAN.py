@@ -20,12 +20,12 @@ class Example(wx.Frame):
  
     def InitUI(self):
  
-        p = wx.Panel(self)
+        self.p = wx.Panel(self)
        
         bs = wx.BoxSizer(wx.VERTICAL)
-        self.text = wx.TextCtrl(p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
+        self.text = wx.TextCtrl(self.p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.text, 1, wx.EXPAND)
-        self.list = wx.ListCtrl(p,size = (50,30),style = wx.LC_REPORT)
+        self.list = wx.ListCtrl(self.p,size = (50,30),style = wx.LC_REPORT)
         self.list.InsertColumn(0, 'MOLECULE NUMBER', width = 150) 
         self.list.InsertColumn(1, 'MOLECULE NAME', wx.LIST_FORMAT_RIGHT, 200) 
         self.list.InsertColumn(2, 'MOLECULE SYMBOL', wx.LIST_FORMAT_RIGHT, 200)
@@ -41,37 +41,37 @@ class Example(wx.Frame):
              #print row_id,col_id
              cursor= self.conn.execute("SELECT * FROM ELEMENT where ROW_NO==%d AND COLUMN_NO==%d"%(row_id,col_id))
              if(cursor==None):
-                gs.Add(wx.StaticText(p,-1,''))
+                gs.Add(wx.StaticText(self.p,-1,''))
              else:
                 elements = cursor.fetchall()
                 if(elements==None or len(elements)==0):
-                   gs.Add(wx.StaticText(p,-1,''))
+                   gs.Add(wx.StaticText(self.p,-1,''))
                 else:
                    #print elements[0]
-                   btn = wx.Button(p, -1,str(elements[0][1]), (10,20))                              
+                   btn = wx.Button(self.p, -1,str(elements[0][1]), (10,20))                              
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)
                    
-        self.search_btn=wx.Button(p,-1,"Search!")
+        self.search_btn=wx.Button(self.p,-1,"Search!")
         self.search_btn.Bind(wx.EVT_BUTTON, self.OnSearch, self.search_btn)
         bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
         
-        self.plot_btn=wx.Button(p,-1,"Plot!")
+        self.plot_btn=wx.Button(self.p,-1,"Plot!")
         self.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
         bs.Add(self.plot_btn,0,wx.ALIGN_CENTER)
         
-        self.reset_btn=wx.Button(p,-1,"Reset!")
+        self.reset_btn=wx.Button(self.p,-1,"Reset!")
         self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
         bs.Add(self.reset_btn,0,wx.ALIGN_LEFT)
         
-        #self.addnew_btn=wx.Button(p,-1,"Add New!")
-        #self.addnew_btn.Bind(wx.EVT_BUTTON, self.OnAddNew, self.addnew_btn)
-        #bs.Add(self.addnew_btn,0,wx.ALIGN_LEFT)
+        self.addnew_btn=wx.Button(self.p,-1,"Add New!")
+        self.addnew_btn.Bind(wx.EVT_BUTTON, self.OnAddNew, self.addnew_btn)
+        bs.Add(self.addnew_btn,0,wx.ALIGN_LEFT)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.get_selected_item, self.list)
         
         
-        p.SetSizer(bs)
+        self.p.SetSizer(bs)
         
          
     def OnClick(self, event):                                       
@@ -102,9 +102,16 @@ class Example(wx.Frame):
         query = 'SELECT * FROM MOLECULE WHERE MOL_NUMBER IN (%s)' % placeholders
         cursor = self.conn.execute(query, self.molecule_list)
         final = cursor.fetchall()
+
+        no_of_elements=len(self.inter_list)
+
         #print final         
-        for j in final: 
-            self.list.Append((j[0],j[1],j[2],j[3]))                            
+        for j in final:
+            mol_no=j[0]
+            cursor= self.conn.execute('SELECT * FROM LINK WHERE MOL_NUMBER = %d' % mol_no)
+            mnumbers = cursor.fetchall()
+            if(len(mnumbers)==no_of_elements):
+               self.list.Append((j[0],j[1],j[2],j[3]))                            
 
     def OnReset(self, event):                                   
         self.list.DeleteAllItems()
@@ -112,13 +119,15 @@ class Example(wx.Frame):
         self.inter_list = []
         self.text.Clear()
         
-    def get_selected_item(self, event):  
+    def get_selected_item(self, event):
+        self.plot_list = list()  
         self.plot_list.append(event.GetText())
+        print self.plot_list
         
     def OnPlot(self, event):
-        cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (self.plot_list[0]))
+        cursor= self.conn.execute("SELECT FILE_NAME FROM MOLECULE where MOL_NUMBER==?", (self.plot_list[0],))
         files = cursor.fetchall()
-        #print files[0][0]
+        print files[0][0]
         tf = open(files[0][0],'r+')
 	d = tf.readlines()
 	tf.seek(0)
@@ -134,9 +143,49 @@ class Example(wx.Frame):
                    names=('Raman Shift(cm-1)', 'Intensity(Arbitrary Units)'), ) 
         plt.show()
         
-    #def OnAddNew(self, event):         
-        
- 
+    def OnAddNew(self, event): 
+        dlg = GetData(parent = self.p)
+        dlg.ShowModal()
+        if dlg.result_name:
+            print "Elements: "+dlg.result_elements+"\n"
+            print "Name: "+dlg.result_name+"\n"
+            print "Formula: "+dlg.result_formula+"\n"
+            print "File: "+dlg.result_file+"\n"
+        else:
+            print "No Input found\n"
+        dlg.Destroy()
+
+class GetData(wx.Dialog):
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, wx.ID_ANY, "New Molecule", size= (650,220))
+        self.p = wx.Panel(self,wx.ID_ANY)
+        self.lblelements = wx.StaticText(self.p, label="Elements", pos=(20,20))
+        self.elements = wx.TextCtrl(self.p, value="", pos=(110,20), size=(500,-1))
+        self.lblnam = wx.StaticText(self.p, label="Name", pos=(20,60))
+        self.name = wx.TextCtrl(self.p, value="", pos=(110,60), size=(500,-1))
+        self.lblform = wx.StaticText(self.p, label="Formula", pos=(20,100))
+        self.formula = wx.TextCtrl(self.p, value="", pos=(110,100), size=(500,-1))
+        self.lblfl = wx.StaticText(self.p, label="File", pos=(20,140))
+        self.file = wx.TextCtrl(self.p, value="", pos=(110,140), size=(500,-1))
+        self.saveButton =wx.Button(self.p, label="Save", pos=(110,170))
+        self.closeButton =wx.Button(self.p, label="Cancel", pos=(210,170))
+        self.saveButton.Bind(wx.EVT_BUTTON, self.SaveConnString)
+        self.closeButton.Bind(wx.EVT_BUTTON, self.OnQuit)
+        self.Bind(wx.EVT_CLOSE, self.OnQuit)
+        self.Show()
+
+    def OnQuit(self, event):
+        self.result_number = None
+        self.Destroy()
+
+    def SaveConnString(self, event):
+        self.result_elements = self.elements.GetValue()
+        self.result_name = self.name.GetValue()
+        self.result_formula = self.formula.GetValue()
+        self.result_file = self.file.GetValue()
+        self.Destroy()
+                
+         
 		
 app = wx.App()
 Example(None, title = 'Raman Spectroscopy Database')
