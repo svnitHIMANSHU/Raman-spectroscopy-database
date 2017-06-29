@@ -46,6 +46,24 @@ c.execute("INSERT INTO LINK VALUES (19, 8, '9')");
 
 c.execute("INSERT INTO LINK VALUES (20, 6, '9')");
 
+c.execute("INSERT INTO LINK VALUES (21, 58, '10')");
+
+c.execute("INSERT INTO LINK VALUES (22, 23, '10')");
+
+c.execute("INSERT INTO LINK VALUES (23, 8, '10')");
+
+c.execute("INSERT INTO LINK VALUES (24, 58, '11')");
+
+c.execute("INSERT INTO LINK VALUES (25, 8, '11')");
+
+c.execute("INSERT INTO LINK VALUES (26, 23, '11')");
+
+c.execute("INSERT INTO LINK VALUES (27, 15, '12')");
+
+c.execute("INSERT INTO LINK VALUES (28, 8, '12')");
+
+c.execute("INSERT INTO LINK VALUES (29, 58, '12')");
+
 c.execute("SELECT * FROM LINK")
 
 rows = c.fetchall()
