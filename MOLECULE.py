@@ -24,6 +24,13 @@ c.execute("INSERT INTO MOLECULE VALUES (8, 'SUCROSE', 'C12H22O11', '600_1%_532e_
 
 c.execute("INSERT INTO MOLECULE VALUES (9, 'CARBON MONO OXIDE', 'CO', '600_1%_532e_Mo F1_80sec.asc')");
 
+c.execute("INSERT INTO MOLECULE VALUES (10, 'New', 'CeVO4monazite', 'CeVO4monazite.asc')");
+
+c.execute("INSERT INTO MOLECULE VALUES (11, 'New phase', 'CeVO4zircon', 'CeVO4zircon.asc')");
+
+c.execute("INSERT INTO MOLECULE VALUES (12, 'plot', 'CePO4', 'CePO4.asc')");
+
+
 c.execute("SELECT * FROM MOLECULE")
 
 rows = c.fetchall()
