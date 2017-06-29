@@ -190,3 +190,7 @@ class GetData(wx.Dialog):
 app = wx.App()
 Example(None, title = 'Raman Spectroscopy Database')
 app.MainLoop()		
+
+# First check molecule table, find maximum mol_no
+#Now execute query insert mol_no + 1, mol_name, mol_formula, file_name  in molecule table
+# first split elements , Execute query to insert values (id + 1, mol_number +1, elements) in link table 
