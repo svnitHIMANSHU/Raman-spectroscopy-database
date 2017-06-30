@@ -144,7 +144,7 @@ class Example(wx.Frame):
         plt.show()
         
     def OnAddNew(self, event): 
-        dlg = GetData(parent = self.p)
+        dlg = GetData(parent = self)
         dlg.ShowModal()
         if dlg.result_name:
             print "Atoms: "+dlg.result_atoms+"\n"
@@ -157,10 +157,13 @@ class Example(wx.Frame):
 
 class GetData(wx.Dialog):
     def __init__(self, parent):
+        bs = wx.BoxSizer(wx.VERTICAL)
+        self.parent = parent
         wx.Dialog.__init__(self, parent, wx.ID_ANY, "New Molecule", size= (650,220))
         self.p = wx.Panel(self,wx.ID_ANY)
         self.lblatoms = wx.StaticText(self.p, label="Atoms", pos=(20,20))
-        self.atoms = wx.TextCtrl(self.p, value="", pos=(110,20), size=(500,-1))
+        self.atoms = wx.TextCtrl(self.p, value="", pos=(110,20), size=(500,-1)) 
+        bs.Add(self.atoms,0)      
         self.lblnam = wx.StaticText(self.p, label="Name", pos=(20,60))
         self.name = wx.TextCtrl(self.p, value="", pos=(110,60), size=(500,-1))
         self.lblform = wx.StaticText(self.p, label="Formula", pos=(20,100))
@@ -184,13 +187,11 @@ class GetData(wx.Dialog):
         self.result_formula = self.formula.GetValue()
         self.result_fil = self.fil.GetValue()
         self.conn = sqlite3.connect('RAMAN.db')
-        cursor= self.conn.execute("SELECT max(MOL_NUMBER) FROM MOLECULE")
-        maxvalue = cursor.fetchone()[0]
-        print maxvalue      
-        cursor= self.conn.execute("INSERT INTO MOLECULE VALUES (?, ?, ?, ?);", (maxvalue + 1, "name", "formula", "fil"))
+        #cursor= self.conn.execute("SELECT max(MOL_NUMBER) FROM MOLECULE")
+        #maxvalue = cursor.fetchone()[0]      
+        #cursor= self.conn.execute("INSERT INTO MOLECULE VALUES (?, ?, ?, ?);", (maxvalue + 1, "name", "formula", "fil"))
         #cursor= self.conn.execute("SELECT max(ID) FROM LINK")
         #supervalue = cursor.fetchone()[0]
-        #print supervalue
         # split the value of atoms
         #cursor= self.conn.execute("INSERT INTO LINK VALUES (?,?,?);,(supervalue + 1, "result_atoms", maxvalue + 1)");
         self.conn.commit()
