@@ -5,18 +5,6 @@ import matplotlib.pyplot as plt
 import re 
 import os 
 
-class MyFrame(wx.Frame):
-
-    def __init__(self):
-        wx.Frame.__init__(self, None, -1, "My Frame", size=(3000, 3000))
-        self.p = wx.Panel(self,-1)
-        button=wx.Button(self.p,label="OK",pos=(800, 400), size = (50,50))
-        self.Bind(wx.EVT_BUTTON, self.newwindow, button)
-
-
-    def newwindow(self, event):
-        secondWindow = Example(parent=self.p)
-        secondWindow.Show()
 
 class Example(wx.Frame):
  
@@ -36,11 +24,17 @@ class Example(wx.Frame):
         self.p = wx.Panel(self)        
         bs = wx.BoxSizer(wx.VERTICAL)
         lbl=wx.StaticText(self.p,-1,style=wx.ALIGN_CENTER)
-        txt = "Periodic Table"
+        txt = "Welcome to Raman Spectroscopy Database"
         font = wx.Font(18, wx.ROMAN, wx.ITALIC, wx.NORMAL)
         lbl.SetFont(font)
 	lbl.SetLabel(txt)
 	bs.Add(lbl,0,wx.ALIGN_CENTER)
+        #lbl2=wx.StaticText(self.p,-1,style=wx.ALIGN_CENTER)
+        #txt2 = "Periodic Table"
+       # font2 = wx.Font(18, wx.ROMAN, wx.ITALIC, wx.NORMAL)
+       # lbl2.SetFont(font2)
+	#lbl2.SetLabel(txt2)
+	#bs.Add(lbl2,0,wx.ALIGN_CENTER)
         self.text = wx.TextCtrl(self.p,size = (50,30),style = wx.TE_MULTILINE |wx.TE_CENTER)
         bs.Add(self.text, 1, wx.EXPAND)
         self.list = wx.ListCtrl(self.p,size = (50,30),style = wx.LC_REPORT)
@@ -70,25 +64,31 @@ class Example(wx.Frame):
                    btn.Bind(wx.EVT_BUTTON, self.OnClick, btn)
                    gs.Add(btn, -1, wx.EXPAND)
                    
-        self.search_btn=wx.Button(self.p,-1,"Search!")
+        self.search_btn=wx.Button(self.p,-1,"Search")
         self.search_btn.Bind(wx.EVT_BUTTON, self.OnSearch, self.search_btn)
         bs.Add(self.search_btn,0,wx.ALIGN_CENTER)
-        
-        self.plot_btn=wx.Button(self.p,-1,"Plot!")
-        self.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
-        bs.Add(self.plot_btn,0,wx.ALIGN_CENTER)
-        
-        self.reset_btn=wx.Button(self.p,-1,"Reset!")
-        self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
-        bs.Add(self.reset_btn,0,wx.ALIGN_LEFT)
-        
-        #self.addnew_btn=wx.Button(self.p,-1,"Add New!")
-        #self.addnew_btn.Bind(wx.EVT_BUTTON, self.OnAddNew, self.addnew_btn)
-        #bs.Add(self.addnew_btn,0,wx.ALIGN_LEFT)
 
-        self.total_btn=wx.Button(self.p,-1,"Total Molecule!")
-        self.total_btn.Bind(wx.EVT_BUTTON, self.OnTotal, self.total_btn)
-        bs.Add(self.total_btn,0,wx.ALIGN_RIGHT)
+        self.reset_btn=wx.Button(self.p,-1,"Reset")
+        self.reset_btn.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_btn)
+        bs.Add(self.reset_btn,0,wx.ALIGN_CENTER)
+        
+        self.plot_btn=wx.Button(self.p,-1,"Plot")
+        self.Bind(wx.EVT_BUTTON, self.OnPlot, self.plot_btn)
+        bs.Add(self.plot_btn,0,wx.ALIGN_LEFT)
+        
+
+        
+        self.addnew_btn=wx.Button(self.p,-1,"Add New")
+        self.addnew_btn.Bind(wx.EVT_BUTTON, self.OnAddNew, self.addnew_btn)
+        bs.Add(self.addnew_btn,0,wx.ALIGN_LEFT)
+
+        self.delete_btn=wx.Button(self.p,-1,"Delete")
+        self.delete_btn.Bind(wx.EVT_BUTTON, self.OnDelete, self.delete_btn)
+        bs.Add(self.delete_btn,0,wx.ALIGN_RIGHT)
+        
+        self.credit_btn=wx.Button(self.p,-1,"Credits")
+        self.credit_btn.Bind(wx.EVT_BUTTON, self.OnCredit, self.credit_btn)
+        bs.Add(self.credit_btn,0,wx.ALIGN_RIGHT)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.get_selected_item, self.list)
         
@@ -143,6 +143,7 @@ class Example(wx.Frame):
         
     def get_selected_item(self, event):
         self.plot_list = list()  
+	self.to_delete = event.GetIndex()
         self.plot_list.append(event.GetText())
         #print self.plot_list
         
@@ -163,14 +164,81 @@ class Example(wx.Frame):
         tf.close()
         plt.plotfile(str(files[0][0]), delimiter=' ',comments = '#', cols=(0, 1), 
                    names=('Raman Shift ($\mathregular{Cm^{-1}}$)', 'Intensity (arb. units)'), ) 
+        plt.title('Raman Spectra of {}'.format(files[0][0]))
         plt.show()
 
-    def OnTotal(self, event):
-        cursor= self.conn.execute("SELECT count(*) FROM MOLECULE")
-        total = cursor.fetchall()
-        print total
+    def OnDelete(self,event):
+        cursor= self.conn.execute("DELETE FROM MOLECULE WHERE MOL_NUMBER==?", (self.plot_list[0],))
+	print self.to_delete
+	#print self.list.GetIndex()
+        delet = self.list.DeleteItem(self.to_delete)
+        self.conn.commit()
+        print delet
 
+    def OnCredit(self,event):
+        wx.MessageBox("  BARC \n  Himanshu Pareek, SVNIT Surat")
+
+
+    def OnAddNew(self,event):
+        dlg = GetData(parent = self.p) 
+        dlg.ShowModal()
+        dlg.Destroy()
+           
+
+class GetData(wx.Dialog):
+
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, wx.ID_ANY, "Name Input", size= (650,220))
+        self.p = wx.Panel(self,wx.ID_ANY)
+
+        self.lblmol = wx.StaticText(self.p, label="Molecule", pos=(20,20))
+        self.molecule = wx.TextCtrl(self.p, value="", pos=(110,20), size=(500,-1))
+        self.lblfr = wx.StaticText(self.p, label="Facility", pos=(20,60))
+        self.facility = wx.TextCtrl(self.p, value="", pos=(110,60), size=(500,-1))
+        self.lbldt = wx.StaticText(self.p, label="Data", pos=(20,100))
+        self.data = wx.TextCtrl(self.p, value="", pos=(110,100), size=(500,-1))
+        self.lblelem = wx.StaticText(self.p, label = "Elements", pos = (20,140))
+        self.elements = wx.TextCtrl(self.p, value="", pos=(110,140), size=(500,-1))
+        self.saveButton =wx.Button(self.p, label="Save", pos=(110,160))
+        self.closeButton =wx.Button(self.p, label="Cancel", pos=(210,160))
+        self.saveButton.Bind(wx.EVT_BUTTON, self.SaveConnString)
+        self.closeButton.Bind(wx.EVT_BUTTON, self.OnQuit)
+        self.Bind(wx.EVT_CLOSE, self.OnQuit)
+        self.Show()
+
+    def OnQuit(self, event):
+        self.result_name = None
+        self.Destroy()
+
+    def SaveConnString(self, event):
+	self.conn = sqlite3.connect('RAMAN.db')
+        result_molecule = self.molecule.GetValue()
+        result_facility = self.facility.GetValue()
+        result_data = self.data.GetValue()
+        result_elements = self.elements.GetValue()
+
+ 	cursora = self.conn.execute("SELECT * FROM LINK")
+        maxmola = cursora.fetchall()
+	#print maxmola
+
+        cursor= self.conn.execute("SELECT MAX(MOL_NUMBER) FROM MOLECULE")
+        maxmol = cursor.fetchall()
+        #print maxmol[0][0]
+	#print result_facility
+	cursor = self.conn.execute("INSERT INTO MOLECULE( MOL_NUMBER , MOL_NAME , MOL_FORMULA , FILE_NAME) VALUES(? , ? , ? , ?)" , (maxmol[0][0] +1 , result_molecule , result_facility , result_data))
+	self.conn.commit()
+	element_array = result_elements.split(",") 
+	for element in element_array: 
+		element_id = self.conn.execute("SELECT * FROM ELEMENT WHERE SYMBOL == ?", [element])
+		ele = element_id.fetchall()[0][0]
+                cursor= self.conn.execute("SELECT MAX(ID) FROM LINK")
+        	maxid = cursor.fetchall()
+        	#print maxid[0][0]
+		cursor = self.conn.execute("INSERT INTO LINK(ID , ELEMENT_NUMBER , MOL_NUMBER ) VALUES(? , ? , ?)" , (maxid[0][0] +1 , ele, maxmol[0][0] + 1))
+		self.conn.commit()
+        self.Destroy()
+      
+       		
 app = wx.App(False)
-frame = MyFrame()
-frame.Show(True)
-app.MainLoop()
+Example(None, title = 'Raman Spectroscopy Database')
+app.MainLoop() 
